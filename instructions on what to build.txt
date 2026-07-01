@@ -1,0 +1,27 @@
+create a website that will do the following.
+this is like an in house company world platform, where the money is managed within the staff of the company. in house transfer and parcel tracking managed by the companies admin
+aside from the below features, for the color combination and design i love the one from https://www.fedex.com/en-ng/home.html, so you can check out and use there fonts and color combination. as for the landing page i will leave there html as FedEx _ Express Delivery, Courier & Shipping Services _ Nigeria.html, use the design and photo but change the name please, its for reference purpose also the icons use it for the landing page
+1. create account for users to manage in company funds
+2. each user account should have its own dashboard with empty balance at registration
+3. each user will register with his names, details, email, gender, location, the it slides to uploading ID card front and back for verification
+4. it will also serve as a package tracking site, where users will track there parcel if it has reached through the generated link from the admin panel (which will be generated after)
+5. the admin will be able to see all user details, name, profile, id cards uploaded (for verification) and phone number used
+6. the admin will be able to ping and send general message to all or single users
+7. the admin will manage transactions from one user to another to approve or reject the transaction
+8. the admin will be able to create tracking codes, by uploading parcel details, where it is going from where and to where it is going. from time to time the admin should be able to add intervals of parcel arrival and update the link to perform it
+9. the admin will aslo add fees to parcel, for delivering or before it can be delivered
+10. admin should be able to set account as active or innactive
+11. the user dashboard should have a credit card layout which displays the condition of the account. like if its active or inactive, name of the user that has the account, toggle of balance visibility
+12. then under it you will have track parcel, for user to upload his or her parcel to track
+13. then transfer or deposit
+14 there will be a side pane that allows user to transfer to other users, to put user account and other details, then send. once sent it will show pending, but will appear in the admin panel for proper approval and settlement.
+15. within the side pannel other features too like, settings, profiles, deposit, transfer, logout, history, parcel tracker
+16 settings: the settings page should contain the following features; toggle light and dark mode, hide balance, edit profile, change profile picture and stuff
+17 profile: should display the details of the user, things like the profile picture, name and details, he can be navigated to settings to adjust.
+18 deposit:users can deposit by writing the amount to be deposited, copy the image and details for apporval, click deposit, then it will show pending, while the admin checks to see if code and image maches the user before approving.
+19. transfer: for users to transfer to other users, they will input the name and account details of the user, then click send. it will show processing, then the admin will approve or reject the transfer.
+20. log out: logs out the user
+21. history: shows history of amount coming in and going out with there status (pending, processing, rejected or approved)
+22. parcel tracker: once user puts the tracking number it will give them access to see the parcel, a world map and where it is currently at and where it is going to the phase and and a timeline, with any fees set by th admin concerning the parcel, the admin will also set a ntoe attached regarding the essence of the fee
+23. admin should be able to set account active or inactive : users will be able to login but it will show them inactive and features will be disabled asking them to contact customer support
+

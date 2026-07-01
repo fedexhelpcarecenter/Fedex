@@ -1,0 +1,11 @@
+Review and improve the responsive design of this website so it adapts cleanly across all screen sizes — mobile (320–480px), tablet (481–1024px), and desktop (1025px+). Do not change the color palette, fonts, copy, or overall visual identity — only adjust layout, spacing, and sizing behavior. Specifically:
+
+Navigation — Convert the desktop nav into a mobile-friendly pattern (hamburger menu or collapsible drawer) below 860px instead of just hiding it. Keep the CTA button accessible on mobile.
+Hero section — Scale down heading font sizes fluidly (use clamp() instead of fixed breakpoint jumps) so text doesn't overflow or look cramped on small screens. Stack the tracking input and button vertically on narrow viewports with full-width touch targets (min 44px height).
+Grids — Ensure all multi-column grids (service cards, footer columns, stat rows) collapse gracefully: 3-across → 2-across → 1-across, not 3-across → 1-across in one jump. Use grid-template-columns: repeat(auto-fit, minmax(...)) where it makes sense instead of hardcoded breakpoints.
+Spacing — Reduce section padding proportionally on smaller screens (e.g. clamp() or scaled rem values) so mobile doesn't feel like a squished desktop layout.
+Touch targets — All buttons, links, and interactive elements should be at least 44x44px on mobile, with adequate spacing between tappable elements to prevent mis-taps.
+Images/visual blocks — Make sure any fixed-height decorative blocks scale down proportionally instead of staying a fixed height that dominates the mobile viewport.
+Testing breakpoints — Explicitly test and adjust at 375px (small phone), 768px (tablet portrait), and 1024px (tablet landscape/small laptop).
+
+Keep all existing class names, structure, and design tokens intact — this is a responsive-behavior pass only, not a redesign.
