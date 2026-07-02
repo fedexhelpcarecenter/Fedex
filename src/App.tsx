@@ -4,11 +4,14 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { Navbar, DbBanner } from './components/Navbar'
 import { BottomNav } from './components/BottomNav'
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute'
+import { TawkTo } from './components/TawkTo'
 import { useAuth } from './contexts/AuthContext'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { Signup } from './pages/Signup'
 import { PublicTracking } from './pages/PublicTracking'
+import { ForgotPassword } from './pages/ForgotPassword'
+import { ResetPassword } from './pages/ResetPassword'
 import { Dashboard } from './pages/Dashboard'
 import { Transfer } from './pages/Transfer'
 import { Deposit } from './pages/Deposit'
@@ -35,6 +38,7 @@ function AppLayout() {
 
   return (
     <div className="app">
+      <TawkTo />
       <DbBanner />
       <Navbar />
       <div className="app-content">
@@ -43,6 +47,8 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/track/:code" element={<PublicTracking />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/transfer" element={<ProtectedRoute><Transfer /></ProtectedRoute>} />
           <Route path="/deposit" element={<ProtectedRoute><Deposit /></ProtectedRoute>} />

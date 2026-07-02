@@ -91,15 +91,17 @@ export function History() {
           <div className="transaction-list">
             {transactions.map(tx => {
               const StatusIcon = statusIcon[tx.status] || FiClock
+              const isDeposit = tx.type === 'deposit'
               const isIncoming = tx.receiver_id === user?.id
+              const isPositive = isDeposit || isIncoming
               return (
                 <div key={tx.id} className="transaction-item">
-                  <div className="tx-icon" style={{ background: isIncoming ? '#E8F5E9' : '#FEEBEE' }}>
-                    {isIncoming ? <FiArrowDownLeft color="#00A86B" /> : <FiArrowUpRight color="#DC2626" />}
+                  <div className="tx-icon" style={{ background: isPositive ? '#E8F5E9' : '#FEEBEE' }}>
+                    {isPositive ? <FiArrowDownLeft color="#00A86B" /> : <FiArrowUpRight color="#DC2626" />}
                   </div>
                   <div className="tx-details">
                     <strong>
-                      {tx.type === 'deposit' ? 'Deposit' :
+                      {isDeposit ? 'Deposit' :
                        isIncoming ? `From ${tx.sender?.first_name} ${tx.sender?.last_name}`
                                   : `To ${tx.receiver?.first_name} ${tx.receiver?.last_name}`}
                     </strong>
@@ -107,8 +109,8 @@ export function History() {
                     <small>{formatDate(tx.created_at)}</small>
                   </div>
                   <div className="tx-amount-status">
-                    <span className={`tx-amount ${isIncoming ? 'positive' : 'negative'}`}>
-                      {isIncoming ? '+' : '-'}{formatCurrency(tx.amount, profile?.preferred_currency as any)}
+                    <span className={`tx-amount ${isPositive ? 'positive' : 'negative'}`}>
+                      {isPositive ? '+' : '-'}{formatCurrency(tx.amount, profile?.preferred_currency as any)}
                     </span>
                     <span className="tx-status" style={{ color: statusColor[tx.status] }}>
                       <StatusIcon size={14} /> {tx.status}
