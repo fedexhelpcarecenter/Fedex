@@ -21,6 +21,7 @@ import { AdminDashboard } from './pages/Admin/AdminDashboard'
 import { AdminUsers } from './pages/Admin/AdminUsers'
 import { AdminTransactions } from './pages/Admin/AdminTransactions'
 import { AdminTracking } from './pages/Admin/AdminTracking'
+import { AdminCompanyAccounts } from './pages/Admin/AdminCompanyAccounts'
 import './App.css'
 
 function AppLayout() {
@@ -30,7 +31,7 @@ function AppLayout() {
     pathname.startsWith('/deposit') || pathname.startsWith('/track') ||
     pathname.startsWith('/history') || pathname.startsWith('/settings') ||
     pathname.startsWith('/profile') || pathname.startsWith('/admin') ||
-    pathname.startsWith('/notifications')
+    pathname.startsWith('/notifications') || pathname.startsWith('/admin/accounts')
 
   return (
     <div className="app">
@@ -54,6 +55,7 @@ function AppLayout() {
           <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
           <Route path="/admin/transactions" element={<AdminRoute><AdminTransactions /></AdminRoute>} />
           <Route path="/admin/tracking" element={<AdminRoute><AdminTracking /></AdminRoute>} />
+          <Route path="/admin/accounts" element={<AdminRoute><AdminCompanyAccounts /></AdminRoute>} />
         </Routes>
       </div>
       {user && isDashboard && <BottomNav />}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -60,7 +60,10 @@ export function ParcelMap({ origin, destination, currentLocation, milestones }: 
   const [milestoneCoords, setMilestoneCoords] = useState<{ coord: Coord; label: string }[]>([])
   const [loaded, setLoaded] = useState(false)
 
+  const milestoneLocations = useMemo(() => (milestones || []).map(m => m.location).join(','), [milestones])
+  
   useEffect(() => {
+    setLoaded(false)
     Promise.all([
       geocode(origin),
       geocode(destination),
@@ -78,8 +81,8 @@ export function ParcelMap({ origin, destination, currentLocation, milestones }: 
       }
       setMilestoneCoords(ms)
       setLoaded(true)
-    })
-  }, [origin, destination, currentLocation])
+    }).catch(() => setLoaded(true))
+  }, [origin, destination, currentLocation, milestoneLocations])
 
   const points = [originCoord, currentCoord, destCoord].filter(Boolean) as Coord[]
   const bounds = points.length > 1 ? L.latLngBounds(points.map(p => [p.lat, p.lng])) : undefined
@@ -89,7 +92,7 @@ export function ParcelMap({ origin, destination, currentLocation, milestones }: 
 
   return (
     <div className="parcel-map-container">
-      <MapContainer center={[center.lat, center.lng]} zoom={bounds ? undefined : 4} bounds={bounds} boundsOptions={{ padding: [50, 50] }} className="parcel-map">
+      <MapContainer key={`${origin}-${destination}-${currentLocation}`} center={[center.lat, center.lng]} zoom={bounds ? undefined : 4} bounds={bounds} boundsOptions={{ padding: [50, 50] }} className="parcel-map">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

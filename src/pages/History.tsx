@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from '../components/Sidebar'
-import { useCurrency } from '../hooks/useCurrency'
+import { formatCurrency } from '../lib/currency'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { FiArrowUpRight, FiArrowDownLeft, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi'
@@ -20,10 +20,25 @@ interface Transaction {
 }
 
 export function History() {
-  const { user } = useAuth()
-  const { format } = useCurrency()
+  const { user, profile } = useAuth()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
+
+  if (!profile) return null
+
+  if (!profile.is_active) {
+    return (
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   useEffect(() => {
     loadTransactions()
@@ -100,7 +115,7 @@ export function History() {
                   </div>
                   <div className="tx-amount-status">
                     <span className={`tx-amount ${isIncoming ? 'positive' : 'negative'}`}>
-                      {isIncoming ? '+' : '-'}{format(tx.amount)}
+                      {isIncoming ? '+' : '-'}{formatCurrency(tx.amount, profile?.preferred_currency as any)}
                     </span>
                     <span className="tx-status" style={{ color: statusColor[tx.status] }}>
                       <StatusIcon size={14} /> {tx.status}

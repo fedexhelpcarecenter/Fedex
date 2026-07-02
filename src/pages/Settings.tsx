@@ -11,15 +11,18 @@ import { FiSun, FiMoon, FiEye, FiEyeOff, FiSave } from 'react-icons/fi'
 export function Settings() {
   const { profile, refreshProfile } = useAuth()
   const { dark, toggle } = useTheme()
-  const { currency, setCurrency, format, currencies } = useCurrency()
+  const { setCurrency, format, currencies } = useCurrency()
   const [hideBalance, setHideBalance] = useState(false)
   const [firstName, setFirstName] = useState(profile?.first_name || '')
   const [lastName, setLastName] = useState(profile?.last_name || '')
   const [phone, setPhone] = useState(profile?.phone || '')
   const [location, setLocation] = useState(profile?.location || '')
+  const [preferredCurrency, setPreferredCurrency] = useState(profile?.preferred_currency || 'USD')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+
+  if (!profile) return null
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -46,12 +49,14 @@ export function Settings() {
         phone,
         location,
         avatar_url: avatarUrl,
+        preferred_currency: preferredCurrency,
       })
       .eq('id', profile?.id)
 
     setSaving(false)
     if (error) { setMessage('Error saving: ' + error.message); return }
     setMessage('Settings saved!')
+    setCurrency(preferredCurrency as any)
     refreshProfile()
   }
 
@@ -90,8 +95,8 @@ export function Settings() {
           <h3>Currency</h3>
           <SearchSelect
             label="Preferred Currency"
-            value={currency}
-            onChange={v => setCurrency(v as any)}
+            value={preferredCurrency}
+            onChange={v => setPreferredCurrency(v as any)}
             options={currencyOptions}
           />
           <p className="setting-hint">Preview: {format(1250.50)}</p>

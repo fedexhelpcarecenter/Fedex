@@ -1,45 +1,61 @@
 import { useState } from 'react'
 import { Sidebar } from '../components/Sidebar'
+import { formatCurrency } from '../lib/currency'
 import { useCurrency } from '../hooks/useCurrency'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { FiSearch } from 'react-icons/fi'
+
+const countries = [
+  'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria',
+  'Bangladesh', 'Belgium', 'Brazil', 'Canada', 'Chile', 'China', 'Colombia',
+  'Denmark', 'Egypt', 'Ethiopia', 'Finland', 'France', 'Germany', 'Ghana',
+  'Greece', 'Hong Kong', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland',
+  'Israel', 'Italy', 'Japan', 'Jordan', 'Kenya', 'Kuwait', 'Lebanon',
+  'Malaysia', 'Mexico', 'Morocco', 'Netherlands', 'New Zealand', 'Nigeria',
+  'Norway', 'Pakistan', 'Philippines', 'Poland', 'Portugal', 'Qatar',
+  'Romania', 'Russia', 'Saudi Arabia', 'Singapore', 'South Africa',
+  'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Taiwan',
+  'Tanzania', 'Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Arab Emirates',
+  'United Kingdom', 'United States', 'Vietnam', 'Zambia', 'Zimbabwe',
+]
 
 export function Transfer() {
   const { user, profile } = useAuth()
-  const { format, info } = useCurrency()
-  const [recipient, setRecipient] = useState('')
+  const { info } = useCurrency()
+  const [recipientName, setRecipientName] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [country, setCountry] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-  const [searchResults, setSearchResults] = useState<{ id: string; first_name: string; last_name: string; email: string }[]>([])
-  const [selectedUser, setSelectedUser] = useState<{ id: string; first_name: string; last_name: string } | null>(null)
 
-  async function searchUser(query: string) {
-    setRecipient(query)
-    if (query.length < 2) { setSearchResults([]); return }
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, first_name, last_name, email')
-      .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%`)
-      .neq('id', user?.id)
-      .limit(5)
-    setSearchResults(data || [])
-  }
+  if (!profile) return null
 
-  function selectUser(u: { id: string; first_name: string; last_name: string }) {
-    setSelectedUser(u)
-    setRecipient(`${u.first_name} ${u.last_name}`)
-    setSearchResults([])
+  if (!profile.is_active) {
+    return (
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setSuccess('')
-    if (!selectedUser) { setError('Please select a recipient'); return }
+    if (!recipientName.trim()) { setError('Please enter recipient name'); return }
+    if (!bankName.trim()) { setError('Please enter bank name'); return }
+    if (!accountNumber.trim()) { setError('Please enter account number'); return }
+    if (!country) { setError('Please select a country'); return }
     const amt = parseFloat(amount)
     if (isNaN(amt) || amt <= 0) { setError('Invalid amount'); return }
     if (amt > (profile?.balance || 0)) { setError('Insufficient balance'); return }
@@ -47,30 +63,38 @@ export function Transfer() {
 
     const { error: err } = await supabase.from('transactions').insert({
       sender_id: user?.id,
-      receiver_id: selectedUser.id,
+      receiver_id: null,
       amount: amt,
       type: 'transfer',
       status: 'pending',
-      description,
+      description: description || `Transfer to ${recipientName}`,
       reference: `TRF-${Date.now()}`,
+      recipient_details: {
+        recipient_name: recipientName.trim(),
+        bank_name: bankName.trim(),
+        account_number: accountNumber.trim(),
+        country,
+      },
     })
 
     if (!err) {
       await supabase.from('notifications').insert({
         user_id: user?.id,
         title: 'Transfer Submitted',
-        message: `Your transfer of ${format(amt)} to ${selectedUser.first_name} ${selectedUser.last_name} has been submitted and is pending approval.`,
+        message: `Your transfer of ${formatCurrency(amt, profile?.preferred_currency as any)} to ${recipientName} has been submitted and is pending approval.`,
         type: 'info',
       })
     }
 
     setLoading(false)
     if (err) { setError(err.message); return }
-    setSuccess('Transfer submitted! Awaiting admin approval.')
+    setSuccess('Transfer submitted! Pending approval.')
+    setRecipientName('')
+    setBankName('')
+    setAccountNumber('')
+    setCountry('')
     setAmount('')
     setDescription('')
-    setSelectedUser(null)
-    setRecipient('')
   }
 
   return (
@@ -81,28 +105,24 @@ export function Transfer() {
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
         <form onSubmit={handleSubmit} className="transfer-form">
-          <div className="form-group" style={{ position: 'relative' }}>
-            <label>Recipient</label>
-            <div className="search-input-wrapper">
-              <FiSearch size={16} />
-              <input
-                type="text"
-                value={recipient}
-                onChange={e => searchUser(e.target.value)}
-                placeholder="Search by name or email"
-                required
-              />
-            </div>
-            {searchResults.length > 0 && (
-              <div className="search-results">
-                {searchResults.map(u => (
-                  <button key={u.id} type="button" className="search-result-item" onClick={() => selectUser(u)}>
-                    <strong>{u.first_name} {u.last_name}</strong>
-                    <small>{u.email}</small>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="form-group">
+            <label>Recipient Name</label>
+            <input type="text" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Full name of recipient" required />
+          </div>
+          <div className="form-group">
+            <label>Bank Name</label>
+            <input type="text" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. Chase, HSBC, Access Bank" required />
+          </div>
+          <div className="form-group">
+            <label>Account Number</label>
+            <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Recipient account number" required />
+          </div>
+          <div className="form-group">
+            <label>Country</label>
+            <select value={country} onChange={e => setCountry(e.target.value)} className="form-select" required>
+              <option value="">Select country</option>
+              {countries.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <div className="form-group">
             <label>Amount ({info.code})</label>
@@ -110,7 +130,7 @@ export function Transfer() {
           </div>
           <div className="form-group">
             <label>Description (optional)</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="What's this for?" />
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Purpose of transfer" />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Processing...' : 'Send Transfer'}

@@ -128,6 +128,7 @@ export function Signup() {
       location,
       id_card_front: idFrontUrl,
       id_card_back: idBackUrl,
+      preferred_currency: 'USD',
     })
 
     setLoading(false)

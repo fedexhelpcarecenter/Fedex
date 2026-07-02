@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiSend, FiDownload, FiClock, FiPackage, FiBell, FiSettings, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiHome, FiSend, FiDownload, FiClock, FiPackage, FiBell, FiSettings, FiUser, FiLogOut, FiShield } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 
-const links = [
+const userLinks = [
   { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
   { to: '/transfer', icon: FiSend, label: 'Transfer' },
   { to: '/deposit', icon: FiDownload, label: 'Deposit' },
@@ -12,6 +12,13 @@ const links = [
   { to: '/notifications', icon: FiBell, label: 'Notifications' },
   { to: '/profile', icon: FiUser, label: 'Profile' },
   { to: '/settings', icon: FiSettings, label: 'Settings' },
+]
+
+const adminLinks = [
+  { to: '/admin', icon: FiShield, label: 'Admin Panel' },
+  { to: '/admin/users', icon: FiUser, label: 'Manage Users' },
+  { to: '/admin/transactions', icon: FiClock, label: 'Transactions' },
+  { to: '/admin/tracking', icon: FiPackage, label: 'Parcel Tracking' },
 ]
 
 export function Sidebar() {
@@ -23,6 +30,8 @@ export function Sidebar() {
     ? `${profile.first_name} ${profile.last_name}`
         .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : '?'
+
+  const isAdmin = profile?.role === 'admin'
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -41,13 +50,12 @@ export function Sidebar() {
         {!collapsed && (
           <div className="sidebar-profile-info">
             <span className="sidebar-profile-name">{profile?.first_name} {profile?.last_name}</span>
-            <span className="sidebar-profile-role">{profile?.role}</span>
           </div>
         )}
       </div>
 
       <div className="sidebar-links">
-        {links.map(link => (
+        {userLinks.map(link => (
           <Link
             key={link.to}
             to={link.to}
@@ -57,6 +65,22 @@ export function Sidebar() {
             {!collapsed && <span>{link.label}</span>}
           </Link>
         ))}
+
+        {isAdmin && (
+          <>
+            {!collapsed && <div className="sidebar-section-label">Admin</div>}
+            {adminLinks.map(link => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`sidebar-link ${pathname === link.to ? 'active' : ''}`}
+              >
+                <link.icon size={20} />
+                {!collapsed && <span>{link.label}</span>}
+              </Link>
+            ))}
+          </>
+        )}
       </div>
       <button className="sidebar-link logout" onClick={() => logout()}>
         <FiLogOut size={20} />

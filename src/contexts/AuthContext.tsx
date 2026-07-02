@@ -17,6 +17,9 @@ export interface Profile {
   balance: number
   is_active: boolean
   role: 'user' | 'admin'
+  preferred_currency: string
+  account_tier: string
+  blocked: boolean
 }
 
 interface AuthContextType {
@@ -65,7 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', userId)
       .maybeSingle()
-    if (data) setProfile(data as Profile)
+    if (data) {
+      const profileData = {
+        ...data,
+        preferred_currency: data.preferred_currency || 'USD',
+        account_tier: data.account_tier || 'basic',
+        blocked: data.blocked || false,
+      }
+      setProfile(profileData as Profile)
+    }
   }
 
   async function refreshProfile() {
@@ -73,7 +84,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error && data.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('blocked')
+        .eq('id', data.user.id)
+        .single()
+      if (profile?.blocked) {
+        await supabase.auth.signOut()
+        setUser(null)
+        setProfile(null)
+        return { error: { message: 'Your account has been blocked. Please contact support.' } }
+      }
+    }
     return { error }
   }
 

@@ -1,11 +1,14 @@
-import { Link } from 'react-router-dom'
-import { Sidebar } from '../components/Sidebar'
-import { useAuth } from '../contexts/AuthContext'
-import { FiMail, FiPhone, FiMapPin, FiEdit2, FiCheckCircle, FiXCircle } from 'react-icons/fi'
+import { Link } from 'react-router-dom';
+import { Sidebar } from '../components/Sidebar';
+import { useAuth } from '../contexts/AuthContext';
+import { FiMail, FiPhone, FiMapPin, FiEdit2, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 
 export function ProfilePage() {
-  const { profile } = useAuth()
-  if (!profile) return null
+  const { profile } = useAuth();
+
+  if (!profile) {
+    return null;
+  }
 
   return (
     <div className="dashboard-layout">
@@ -26,16 +29,45 @@ export function ProfilePage() {
               <h1>{profile.first_name} {profile.last_name}</h1>
               <p className="profile-role">{profile.role}</p>
               <div className="profile-details">
-                <span><FiMail size={14} /> {profile.email}</span>
-                {profile.phone && <span><FiPhone size={14} /> {profile.phone}</span>}
-                {profile.location && <span><FiMapPin size={14} /> {profile.location}</span>}
+                <span>
+                  <FiMail size={14} /> {profile.email}
+                </span>
+                {profile.phone && (
+                  <span>
+                    <FiPhone size={14} /> {profile.phone}
+                  </span>
+                )}
+                {profile.location && (
+                  <span>
+                    <FiMapPin size={14} /> {profile.location}
+                  </span>
+                )}
+                <span>
+                  Currency: {profile.preferred_currency || 'USD'}
+                </span>
               </div>
               <div className="profile-verification">
                 <span className={profile.id_verified ? 'verified' : 'unverified'}>
-                  {profile.id_verified ? <><FiCheckCircle /> ID Verified</> : <><FiXCircle /> ID Not Verified</>}
+                  {profile.id_verified ? (
+                    <>
+                      <FiCheckCircle /> ID Verified
+                    </>
+                  ) : (
+                    <>
+                      <FiXCircle /> ID Not Verified
+                    </>
+                  )}
                 </span>
                 <span className={profile.is_active ? 'verified' : 'unverified'}>
-                  {profile.is_active ? <><FiCheckCircle /> Active</> : <><FiXCircle /> Inactive</>}
+                  {profile.is_active ? (
+                    <>
+                      <FiCheckCircle /> Active
+                    </>
+                  ) : (
+                    <>
+                      <FiXCircle /> Inactive
+                    </>
+                  )}
                 </span>
               </div>
             </div>
@@ -64,5 +96,5 @@ export function ProfilePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

@@ -69,9 +69,8 @@ export function Navbar() {
     <>
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link to="/" className="navbar-brand" style={{ textDecoration: 'none' }}>
-            <span style={{ color: 'var(--color-purple)', fontWeight: 800, fontSize: '1.4rem' }}>Ship</span>
-            <span style={{ color: 'var(--color-orange)', fontWeight: 800, fontSize: '1.4rem' }}>Track</span>
+          <Link to="/" className="navbar-brand" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <img src="/fedex-assets/logo.png" alt="FedEx" style={{ height: '32px', width: 'auto' }} />
           </Link>
 
           <div className="navbar-actions">
@@ -84,6 +83,12 @@ export function Navbar() {
             <button onClick={toggle} className="icon-btn" title="Toggle theme">
               {dark ? <FiSun size={20} /> : <FiMoon size={20} />}
             </button>
+            {!user && (
+              <div className="nav-auth-buttons">
+                <Link to="/login" className="nav-btn-login">Log In</Link>
+                <Link to="/signup" className="nav-btn-signup">Sign Up</Link>
+              </div>
+            )}
             {user && (
               <button onClick={handleLogout} className="icon-btn desktop-only" title="Logout">
                 <FiLogOut size={20} />
@@ -100,9 +105,8 @@ export function Navbar() {
       <div className={`mobile-drawer-overlay ${menuOpen ? 'open' : ''}`} onClick={close} />
       <aside className={`mobile-drawer ${menuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-header">
-          <Link to="/" style={{ textDecoration: 'none' }} onClick={close}>
-            <span style={{ color: 'var(--color-purple)', fontWeight: 800, fontSize: '1.3rem' }}>Ship</span>
-            <span style={{ color: 'var(--color-orange)', fontWeight: 800, fontSize: '1.3rem' }}>Track</span>
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }} onClick={close}>
+            <img src="/fedex-assets/logo.png" alt="FedEx" style={{ height: '28px', width: 'auto' }} />
           </Link>
           <button className="mobile-drawer-close" onClick={close}>
             <FiX size={22} />

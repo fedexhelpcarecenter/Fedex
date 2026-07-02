@@ -23,7 +23,7 @@ const typeConfig: Record<string, { icon: any; color: string }> = {
 }
 
 export function Notifications() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -39,6 +39,22 @@ export function Notifications() {
 
   useEffect(() => { load() }, [load])
 
+  if (!profile) return null
+
+  if (!profile.is_active) {
+    return (
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   async function markRead(id: string) {
     await supabase.from('notifications').update({ is_read: true }).eq('id', id)
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
@@ -50,8 +66,10 @@ export function Notifications() {
   }
 
   async function deleteNotification(id: string) {
-    await supabase.from('notifications').delete().eq('id', id)
-    setNotifications(prev => prev.filter(n => n.id !== id))
+    const { error } = await supabase.from('notifications').delete().eq('id', id)
+    if (!error) {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }
   }
 
   const unreadCount = notifications.filter(n => !n.is_read).length
