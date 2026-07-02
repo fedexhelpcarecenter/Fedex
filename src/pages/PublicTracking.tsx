@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ParcelMap } from '../components/ParcelMap'
@@ -34,6 +34,7 @@ interface Parcel {
   current_location: string | null
   parcel_image: string | null
   milestones: Milestone[]
+  created_at: string
 }
 
 const statusIcons: Record<string, any> = {
@@ -109,7 +110,7 @@ function openInvoice(parcel: Parcel) {
   <div class="header">
     <div class="header-left">
       <img src="/fedex-assets/logo.png" alt="FedEx" />
-      <div><h1>FedEx Logistics</h1><div class="company-address">123 Logistics Avenue, Memphis, TN 38101, United States</div></div>
+      <div><h1>FedEx Global Platform</h1></div>
     </div>
     <div class="header-right">
       <h2>INVOICE</h2>
@@ -185,7 +186,7 @@ function openInvoice(parcel: Parcel) {
   </div>
 
   <div class="footer">
-    <p>FedEx Logistics &bull; 123 Logistics Avenue, Memphis, TN 38101, United States &bull; support@fedexlogistics.com</p>
+    <p>FedEx Global Platform &bull; support@fedexglobal.com</p>
     <p>This is an official invoice for tracking code ${parcel.tracking_code} &bull; Generated on ${new Date().toLocaleString()}</p>
   </div>
 

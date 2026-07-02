@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useCurrency } from '../../hooks/useCurrency'
 import { Link } from 'react-router-dom'
-import { FiPlus, FiMapPin, FiEdit2, FiX, FiTrash2, FiSend, FiPrinter, FiImage, FiCopy, FiCheck } from 'react-icons/fi'
+import { FiPlus, FiEdit2, FiX, FiTrash2, FiSend, FiCopy, FiCheck } from 'react-icons/fi'
 import { ParcelMap } from '../../components/ParcelMap'
 import { ImageUpload } from '../../components/ImageUpload'
 

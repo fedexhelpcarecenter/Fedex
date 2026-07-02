@@ -30,6 +30,7 @@ export function Dashboard() {
 
   if (!profile) return null
   const p = profile as Profile
+  const isInactive = !p.is_active
 
   const currentTier = tierConfig[p.account_tier] || tierConfig.basic
   const TierIcon = currentTier.icon
@@ -86,6 +87,12 @@ export function Dashboard() {
             </div>
           </div>
         </div>
+        {isInactive && (
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        )}
 
         <CreditCard profile={p} />
 
@@ -93,7 +100,13 @@ export function Dashboard() {
           <h3>Quick Actions</h3>
           <div className="actions-grid">
             {quickActions.map(action => (
-              <Link to={action.to} key={action.to} className="action-card" style={{ '--accent': action.color } as React.CSSProperties}>
+              <Link 
+                to={isInactive ? "#" : action.to} 
+                key={action.to} 
+                className="action-card" 
+                style={{ '--accent': action.color, opacity: isInactive ? 0.5 : 1, pointerEvents: isInactive ? 'none' : 'auto' } as React.CSSProperties}
+                onClick={e => isInactive && e.preventDefault()}
+              >
                 <action.icon size={28} />
                 <span>{action.label}</span>
               </Link>
@@ -104,7 +117,11 @@ export function Dashboard() {
         <div className="dashboard-section">
           <div className="dashboard-section-header">
             <h3>Account Tier</h3>
-            <button className="btn btn-sm btn-outline" onClick={() => setShowUpgrade(!showUpgrade)}>
+            <button 
+              className="btn btn-sm btn-outline" 
+              onClick={() => setShowUpgrade(!showUpgrade)}
+              disabled={isInactive}
+            >
               {showUpgrade ? 'Close' : 'Upgrade'}
             </button>
           </div>
@@ -129,7 +146,7 @@ export function Dashboard() {
               {getUpgradeableTiers().map(opt => {
                 const isCurrent = p.account_tier === opt.tier
                 return (
-                  <div key={opt.tier} className="upgrade-card" style={{ borderColor: opt.color }}>
+                  <div key={opt.tier} className="upgrade-card" style={{ borderColor: opt.color, opacity: isInactive ? 0.5 : 1 }}>
                     <div className="upgrade-card-header" style={{ backgroundColor: opt.color }}>
                       <h4>{opt.name}</h4>
                       {isCurrent && <span className="upgrade-current-badge">Current</span>}
@@ -143,7 +160,7 @@ export function Dashboard() {
                         <button
                           className="btn btn-primary btn-block"
                           onClick={() => requestUpgrade(opt.tier)}
-                          disabled={upgradeLoading}
+                          disabled={upgradeLoading || isInactive}
                         >
                           {upgradeLoading ? 'Requesting...' : 'Request Upgrade'}
                         </button>

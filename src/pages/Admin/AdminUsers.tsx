@@ -23,6 +23,7 @@ interface UserProfile {
   preferred_currency: string
   account_tier: string
   blocked: boolean
+  lock_message: string | null
 }
 
 const tierColors: Record<string, string> = {
@@ -43,6 +44,8 @@ export function AdminUsers() {
   const [tierModal, setTierModal] = useState<UserProfile | null>(null)
   const [selectedTier, setSelectedTier] = useState('')
   const [viewingProfile, setViewingProfile] = useState<UserProfile | null>(null)
+  const [lockModal, setLockModal] = useState<UserProfile | null>(null)
+  const [lockMessage, setLockMessage] = useState('')
 
   useEffect(() => { loadUsers() }, [])
 
@@ -71,15 +74,43 @@ export function AdminUsers() {
   }
 
   async function toggleBlock(userId: string, current: boolean) {
-    if (!confirm(`Are you sure you want to ${current ? 'unblock' : 'block'} this user?`)) return
-    const { error } = await supabase.from('profiles').update({ blocked: !current }).eq('id', userId)
+    if (current) {
+      // Unblock
+      if (!confirm('Are you sure you want to unblock this user?')) return
+      const { error } = await supabase.from('profiles').update({ blocked: false, lock_message: null }).eq('id', userId)
+      if (error) { alert(`Error: ${error.message}`); return }
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        title: 'Account Unblocked',
+        message: 'Your account has been unblocked. You can now log in.',
+        type: 'success',
+      })
+      loadUsers()
+    } else {
+      // Block - open modal to get message
+      const user = users.find(u => u.id === userId)
+      if (user) {
+        setLockMessage('')
+        setLockModal(user)
+      }
+    }
+  }
+
+  async function confirmBlock() {
+    if (!lockModal) return
+    const { error } = await supabase.from('profiles').update({ 
+      blocked: true, 
+      lock_message: lockMessage || null 
+    }).eq('id', lockModal.id)
     if (error) { alert(`Error: ${error.message}`); return }
     await supabase.from('notifications').insert({
-      user_id: userId,
-      title: !current ? 'Account Blocked' : 'Account Unblocked',
-      message: !current ? 'Your account has been blocked. You cannot log in. Contact support for assistance.' : 'Your account has been unblocked. You can now log in.',
-      type: !current ? 'error' : 'success',
+      user_id: lockModal.id,
+      title: 'Account Blocked',
+      message: lockMessage || 'Your account has been blocked. You cannot log in. Contact support for assistance.',
+      type: 'error',
     })
+    setLockModal(null)
+    setLockMessage('')
     loadUsers()
   }
 
@@ -427,6 +458,29 @@ export function AdminUsers() {
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button type="button" className="btn btn-outline" onClick={() => setTierModal(null)} style={{ flex: 1 }}>Cancel</button>
               <button type="button" className="btn btn-primary" onClick={updateTier} style={{ flex: 1 }}>Update Tier</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {lockModal ? (
+        <div className="modal-overlay" onClick={() => setLockModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Block {lockModal.first_name} {lockModal.last_name}</h3>
+            <p>Enter a reason for blocking this account (this will be shown to the user).</p>
+            <div className="form-group">
+              <label>Reason for Block</label>
+              <textarea
+                value={lockMessage}
+                onChange={e => setLockMessage(e.target.value)}
+                placeholder="e.g., Suspicious activity detected on your account. Please contact support for more information."
+                rows={4}
+                required
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <button type="button" className="btn btn-outline" onClick={() => setLockModal(null)} style={{ flex: 1 }}>Cancel</button>
+              <button type="button" className="btn btn-primary" onClick={confirmBlock} style={{ flex: 1 }}>Confirm Block</button>
             </div>
           </div>
         </div>

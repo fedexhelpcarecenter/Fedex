@@ -11,6 +11,7 @@ export function ParcelTracker() {
   const [error, setError] = useState('')
 
   if (!profile) return null
+  const isInactive = !profile.is_active
 
   async function handleTrack(e: React.FormEvent) {
     e.preventDefault()
@@ -24,6 +25,12 @@ export function ParcelTracker() {
     <div className="dashboard-layout">
       <Sidebar />
       <main className="dashboard-main" style={{ padding: '20px' }}>
+        {isInactive && (
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        )}
         <div style={{ 
           background: 'linear-gradient(135deg, #4D148C 0%, #6B2FB0 100%)', 
           padding: '32px 24px', 
@@ -41,6 +48,7 @@ export function ParcelTracker() {
                 value={trackingCode} 
                 onChange={e => setTrackingCode(e.target.value)} 
                 placeholder="e.g., FX-2024-0001" 
+                disabled={isInactive}
                 style={{
                   width: '100%',
                   padding: '14px 16px 14px 48px',
@@ -49,12 +57,15 @@ export function ParcelTracker() {
                   borderRadius: '12px',
                   outline: 'none',
                   backgroundColor: 'white',
-                  color: '#111'
+                  color: '#111',
+                  cursor: isInactive ? 'not-allowed' : 'text',
+                  opacity: isInactive ? 0.7 : 1
                 }}
               />
             </div>
             <button 
               type="submit" 
+              disabled={isInactive}
               style={{
                 padding: '14px 28px',
                 backgroundColor: '#FF6600',
@@ -63,9 +74,10 @@ export function ParcelTracker() {
                 borderRadius: '12px',
                 fontWeight: '700',
                 fontSize: '1rem',
-                cursor: 'pointer',
+                cursor: isInactive ? 'not-allowed' : 'pointer',
                 flex: '0 0 auto',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                opacity: isInactive ? 0.7 : 1
               }}
             >
               Track

@@ -19,7 +19,7 @@ export function Landing() {
       <section className="fxg-hero fxg-hero_homepage">
         <div className="fxg-hero__image" style={{ backgroundImage: 'url(/fedex-assets/2019_FedEx_India_17.jpg)' }} />
         <div className="fxg-hero__header">
-          <h1 className="fxg-hero-title">Welcome to FedEx</h1>
+          <h1 className="fxg-hero-title">Welcome to FedEx Global Platform</h1>
           <p className="fxg-hero-subtitle">Internal Logistics &amp; Financial Platform</p>
 
           <ul className="fxg-cube-container" role="tablist">

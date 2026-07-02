@@ -763,7 +763,7 @@ a:hover { color: var(--color-orange); }
 .image-upload-preview img {
   display: block;
   width: 100%;
-  max-height: 200px;
+  max-height: 150px;
   object-fit: contain;
   background: var(--color-surface-alt);
 }

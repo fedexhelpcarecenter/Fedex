@@ -20,6 +20,7 @@ export interface Profile {
   preferred_currency: string
   account_tier: string
   blocked: boolean
+  lock_message: string | null
 }
 
 interface AuthContextType {
@@ -74,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         preferred_currency: data.preferred_currency || 'USD',
         account_tier: data.account_tier || 'basic',
         blocked: data.blocked || false,
+        lock_message: data.lock_message || null,
       }
       setProfile(profileData as Profile)
     }
@@ -88,14 +90,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!error && data.user) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('blocked')
+        .select('blocked, lock_message')
         .eq('id', data.user.id)
         .single()
       if (profile?.blocked) {
         await supabase.auth.signOut()
         setUser(null)
         setProfile(null)
-        return { error: { message: 'Your account has been blocked. Please contact support.' } }
+        return { 
+          error: { 
+            message: profile.lock_message || 'Your account has been blocked. Please contact support.' 
+          } 
+        }
       }
     }
     return { error }

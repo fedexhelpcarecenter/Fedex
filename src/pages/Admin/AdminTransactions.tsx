@@ -15,6 +15,11 @@ interface Transaction {
   reference: string
   created_at: string
   proof_url: string | null
+  deposit_method: 'bank' | 'crypto' | 'giftcard' | null
+  giftcard_front_url: string | null
+  giftcard_back_url: string | null
+  crypto_address: string | null
+  crypto_network: string | null
   recipient_details: {
     recipient_name: string
     bank_name: string
@@ -107,7 +112,7 @@ export function AdminTransactions() {
     const senderCurrency = tx.sender?.preferred_currency || 'USD'
     await supabase.from('notifications').insert({
       user_id: notificationUserId,
-      title: `Transaction ${status}`,
+      title: `Transaction ${status.charAt(0).toUpperCase() + status.slice(1)}`,
       message: `Your ${tx.type} of ${formatCurrency(tx.amount, senderCurrency as any)} has been ${status}.`,
       type: status === 'approved' ? 'success' : 'error',
     })
@@ -196,6 +201,7 @@ export function AdminTransactions() {
                 <tr>
                   <th>Reference</th>
                   <th>Type</th>
+                  <th>Method</th>
                   <th>From</th>
                   <th>To</th>
                   <th>Amount</th>
@@ -209,6 +215,13 @@ export function AdminTransactions() {
                   <tr key={tx.id}>
                     <td><small>{tx.reference}</small></td>
                     <td><span className="badge info">{tx.type}</span></td>
+                    <td>
+                      {tx.deposit_method && (
+                        <span className="badge" style={{ backgroundColor: tx.deposit_method === 'giftcard' ? '#FF6600' : tx.deposit_method === 'crypto' ? '#4D148C' : '#00A86B', color: 'white' }}>
+                          {tx.deposit_method.charAt(0).toUpperCase() + tx.deposit_method.slice(1)}
+                        </span>
+                      )}
+                    </td>
                     <td>{tx.sender?.first_name} {tx.sender?.last_name}</td>
                     <td>{tx.receiver?.first_name} {tx.receiver?.last_name}</td>
                     <td><strong>{formatCurrency(tx.amount, tx.sender?.preferred_currency as any)}</strong></td>
@@ -229,16 +242,9 @@ export function AdminTransactions() {
                             </button>
                           )
                         ))}
-                        {tx.recipient_details && (
-                          <button className="icon-btn" onClick={() => setViewingTx(tx)} title="View recipient details">
-                            <FiEye size={18} />
-                          </button>
-                        )}
-                        {tx.proof_url && (
-                          <a href={tx.proof_url} target="_blank" rel="noreferrer" className="icon-btn" title="View proof">
-                            <FiEye size={18} />
-                          </a>
-                        )}
+                        <button className="icon-btn" onClick={() => setViewingTx(tx)} title="View details">
+                          <FiEye size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -305,31 +311,57 @@ export function AdminTransactions() {
         </div>
       )}
 
-      {viewingTx && viewingTx.recipient_details && (
+      {viewingTx && (
         <div className="modal-overlay" onClick={() => setViewingTx(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Transfer Recipient Details</h3>
+          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
+            <h3>Transaction Details</h3>
             <div className="recipient-details-card">
               <div className="detail-row">
                 <span className="detail-label">Reference</span>
                 <span className="detail-value">{viewingTx.reference}</span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">Recipient Name</span>
-                <span className="detail-value">{viewingTx.recipient_details.recipient_name}</span>
+                <span className="detail-label">Type</span>
+                <span className="detail-value">{viewingTx.type.charAt(0).toUpperCase() + viewingTx.type.slice(1)}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Bank Name</span>
-                <span className="detail-value">{viewingTx.recipient_details.bank_name}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Account Number</span>
-                <span className="detail-value">{viewingTx.recipient_details.account_number}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Country</span>
-                <span className="detail-value">{viewingTx.recipient_details.country}</span>
-              </div>
+              {viewingTx.deposit_method && (
+                <div className="detail-row">
+                  <span className="detail-label">Deposit Method</span>
+                  <span className="detail-value">{viewingTx.deposit_method.charAt(0).toUpperCase() + viewingTx.deposit_method.slice(1)}</span>
+                </div>
+              )}
+              {viewingTx.crypto_network && (
+                <div className="detail-row">
+                  <span className="detail-label">Crypto Network</span>
+                  <span className="detail-value">{viewingTx.crypto_network}</span>
+                </div>
+              )}
+              {viewingTx.crypto_address && (
+                <div className="detail-row">
+                  <span className="detail-label">Crypto Address</span>
+                  <span className="detail-value" style={{ wordBreak: 'break-all' }}>{viewingTx.crypto_address}</span>
+                </div>
+              )}
+              {viewingTx.recipient_details && (
+                <>
+                  <div className="detail-row">
+                    <span className="detail-label">Recipient Name</span>
+                    <span className="detail-value">{viewingTx.recipient_details.recipient_name}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Bank Name</span>
+                    <span className="detail-value">{viewingTx.recipient_details.bank_name}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Account Number</span>
+                    <span className="detail-value">{viewingTx.recipient_details.account_number}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Country</span>
+                    <span className="detail-value">{viewingTx.recipient_details.country}</span>
+                  </div>
+                </>
+              )}
               <div className="detail-row">
                 <span className="detail-label">Amount</span>
                 <span className="detail-value">{formatCurrency(viewingTx.amount, viewingTx.sender?.preferred_currency as any)}</span>
@@ -338,6 +370,31 @@ export function AdminTransactions() {
                 <span className="detail-label">Status</span>
                 <span className={`badge ${viewingTx.status}`}>{viewingTx.status}</span>
               </div>
+              {(viewingTx.giftcard_front_url || viewingTx.giftcard_back_url) && (
+                <div style={{ marginTop: '16px' }}>
+                  <h4 style={{ marginBottom: '8px' }}>Gift Card Images</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {viewingTx.giftcard_front_url && (
+                      <div>
+                        <p style={{ marginBottom: '4px', fontSize: '0.875rem' }}>Front</p>
+                        <img src={viewingTx.giftcard_front_url} alt="Gift card front" style={{ width: '100%', borderRadius: '8px' }} />
+                      </div>
+                    )}
+                    {viewingTx.giftcard_back_url && (
+                      <div>
+                        <p style={{ marginBottom: '4px', fontSize: '0.875rem' }}>Back</p>
+                        <img src={viewingTx.giftcard_back_url} alt="Gift card back" style={{ width: '100%', borderRadius: '8px' }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {viewingTx.proof_url && (
+                <div style={{ marginTop: '16px' }}>
+                  <h4 style={{ marginBottom: '8px' }}>Proof</h4>
+                  <img src={viewingTx.proof_url} alt="Proof" style={{ width: '100%', borderRadius: '8px' }} />
+                </div>
+              )}
             </div>
             <button className="btn btn-primary btn-block" onClick={() => setViewingTx(null)} style={{ marginTop: 16 }}>
               Close

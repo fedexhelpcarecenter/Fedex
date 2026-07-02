@@ -33,20 +33,7 @@ export function Transfer() {
   const [loading, setLoading] = useState(false)
 
   if (!profile) return null
-
-  if (!profile.is_active) {
-    return (
-      <div className="dashboard-layout">
-        <Sidebar />
-        <main className="dashboard-main">
-          <div className="inactive-banner">
-            <h2>Account Inactive</h2>
-            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
-          </div>
-        </main>
-      </div>
-    )
-  }
+  const isInactive = !profile.is_active
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -102,37 +89,43 @@ export function Transfer() {
       <Sidebar />
       <main className="dashboard-main">
         <h1>Transfer Funds</h1>
+        {isInactive && (
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        )}
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
         <form onSubmit={handleSubmit} className="transfer-form">
           <div className="form-group">
             <label>Recipient Name</label>
-            <input type="text" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Full name of recipient" required />
+            <input type="text" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Full name of recipient" required disabled={isInactive} />
           </div>
           <div className="form-group">
             <label>Bank Name</label>
-            <input type="text" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. Chase, HSBC, Access Bank" required />
+            <input type="text" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. Chase, HSBC, Access Bank" required disabled={isInactive} />
           </div>
           <div className="form-group">
             <label>Account Number</label>
-            <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Recipient account number" required />
+            <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Recipient account number" required disabled={isInactive} />
           </div>
           <div className="form-group">
             <label>Country</label>
-            <select value={country} onChange={e => setCountry(e.target.value)} className="form-select" required>
+            <select value={country} onChange={e => setCountry(e.target.value)} className="form-select" required disabled={isInactive}>
               <option value="">Select country</option>
               {countries.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Amount ({info.code})</label>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} min="1" step="0.01" required placeholder="0.00" />
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} min="1" step="0.01" required placeholder="0.00" disabled={isInactive} />
           </div>
           <div className="form-group">
             <label>Description (optional)</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Purpose of transfer" />
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Purpose of transfer" disabled={isInactive} />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading || isInactive}>
             {loading ? 'Processing...' : 'Send Transfer'}
           </button>
         </form>

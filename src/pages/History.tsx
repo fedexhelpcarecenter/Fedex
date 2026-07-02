@@ -25,20 +25,7 @@ export function History() {
   const [loading, setLoading] = useState(true)
 
   if (!profile) return null
-
-  if (!profile.is_active) {
-    return (
-      <div className="dashboard-layout">
-        <Sidebar />
-        <main className="dashboard-main">
-          <div className="inactive-banner">
-            <h2>Account Inactive</h2>
-            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
-          </div>
-        </main>
-      </div>
-    )
-  }
+  const isInactive = !profile.is_active
 
   useEffect(() => {
     loadTransactions()
@@ -92,6 +79,12 @@ export function History() {
       <Sidebar />
       <main className="dashboard-main">
         <h1>Transaction History</h1>
+        {isInactive && (
+          <div className="inactive-banner">
+            <h2>Account Inactive</h2>
+            <p>Your account is currently inactive. Please contact customer support for assistance.</p>
+          </div>
+        )}
         {transactions.length === 0 ? (
           <p style={{ color: 'var(--color-muted)', textAlign: 'center', padding: '40px' }}>No transactions yet</p>
         ) : (
