@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { FiEye, FiEyeOff, FiCheck, FiLock } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiCheck } from 'react-icons/fi'
 
 export function ResetPassword() {
   const navigate = useNavigate()
