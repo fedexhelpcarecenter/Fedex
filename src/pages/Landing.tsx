@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiSearch, FiBox, FiDollarSign, FiChevronRight, FiTruck, FiPackage, FiClock, FiShield } from 'react-icons/fi'
+import { FiSearch, FiBox, FiDollarSign, FiChevronRight, FiTruck, FiPackage, FiClock, FiShield, FiDownload } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
+import { usePwaInstall } from '../hooks/usePwaInstall'
 
 export function Landing() {
   const { user } = useAuth()
+  const { canInstall, install } = usePwaInstall()
   const [trackInput, setTrackInput] = useState('')
   const navigate = useNavigate()
   const [activeCube, setActiveCube] = useState<'track' | 'rate' | 'ship'>('track')
@@ -238,8 +240,31 @@ export function Landing() {
               <span className="fxg-stat-label">Uptime</span>
             </div>
           </div>
+          {canInstall && (
+            <div style={{ textAlign: 'center', marginTop: '32px' }}>
+              <button onClick={install} className="fxg-btn-orange" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', padding: '14px 32px' }}>
+                <FiDownload size={20} /> Install App
+              </button>
+              <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-muted)' }}>Install as a standalone app for quick access</p>
+            </div>
+          )}
         </div>
       </section>
+
+      {canInstall && (
+        <div className="pwa-install-banner">
+          <div className="pwa-install-banner-content">
+            <div className="pwa-install-banner-icon">
+              <img src="/logo.png" alt="FedEx" style={{ height: '40px', width: 'auto' }} />
+            </div>
+            <div className="pwa-install-banner-text">
+              <strong>FedEx Global Platform</strong>
+              <span>Install for quick access</span>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={install}>Install</button>
+          </div>
+        </div>
+      )}
 
       <footer className="fxg-footer">
         <div className="fxg-footer-main">
