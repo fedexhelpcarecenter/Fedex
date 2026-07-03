@@ -213,10 +213,7 @@ export function PublicTracking() {
     setError('')
     try {
       const { data, error: fetchErr } = await supabase
-        .from('parcels')
-        .select('*, milestones:tracking_milestones(*)')
-        .eq('tracking_code', trackingCode.toUpperCase())
-        .single()
+        .rpc('get_parcel_by_tracking', { code: trackingCode.toUpperCase() })
       if (fetchErr || !data) { setError('Tracking code not found'); setParcel(null) }
       else setParcel({ ...data, milestones: data.milestones || [] } as unknown as Parcel)
     } catch { setError('Could not load tracking data') }
